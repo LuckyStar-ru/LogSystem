@@ -13,10 +13,12 @@ import java.util.ArrayList;
 
 public class Hastebin {
 
+    private final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss dd.MM");
+
     public String postLogs(ArrayList<Logs> allLogs) {
         String url = null;
         StringBuilder paste = new StringBuilder();
-        allLogs.forEach(log -> paste.append("[").append(log.getTime()).append("] ").append(log.getNick()).append(" ").append(log.getMessage()));
+        allLogs.forEach(log -> paste.append("[").append(sdf.format(log.getTime().getTime())).append("] ").append(log.getNick()).append(" ").append(log.getMessage()));
         try {
             url = post(paste.toString(), false);
         } catch (IOException e) {
