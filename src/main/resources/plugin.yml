@@ -1,0 +1,7 @@
+name: LogSystem
+author: LuckyStar
+version: "1.0"
+main: ru.luckystar.logsystem.SpigotMain
+commands:
+  history:
+    aliases: [log, logs]
