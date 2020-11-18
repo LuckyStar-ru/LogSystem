@@ -88,7 +88,7 @@ public class DatabaseRepository {
 
     public void removeLog(LogsType t) {
         try {
-            connection.createStatement().execute("DELETE * FROM " + t.name());
+            connection.createStatement().execute("DELETE FROM " + t.name());
         } catch (SQLException e) {
             e.printStackTrace();
         }
