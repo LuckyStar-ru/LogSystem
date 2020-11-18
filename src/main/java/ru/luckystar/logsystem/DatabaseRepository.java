@@ -13,10 +13,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.TreeMap;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -44,43 +41,60 @@ public class DatabaseRepository {
         }
     }
 
-    public void saveLogsToHastebin() {
+    /* Возвращает содержимое каждой таблицы логов по отдельности */
+    public HashMap<LogsType, ArrayList<Logs>> getAllLogsApart() {
         try {
-            FileConfiguration config = this.plugin.getConfig();
             ResultSet rs;
-            ArrayList<String> all = new ArrayList<>();
-            TreeMap<Long, Logs> all_logs = new TreeMap<>();
-            // Логи по отдельности
+            HashMap<LogsType, ArrayList<Logs>> allLogs = new HashMap<>();
+            Calendar calendar = Calendar.getInstance();
             for (LogsType t : LogsType.values()) {
-                StringBuilder temp = new StringBuilder();
-                rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name() + "");
+                ArrayList<Logs> logList = new ArrayList<>();
+                rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name());
                 while (rs.next()) {
-                    temp.append("[").append(sdf.format(new Date(rs.getLong(2)))).append("] ").append(rs.getString(1)).append(" ").append(rs.getString(3)).append("\n");
-                    Calendar calendar = Calendar.getInstance();
-                    Calendar.getInstance().setTimeInMillis(rs.getLong(2));
-                    Logs logs = new Logs(t, rs.getString(1), calendar, rs.getString(3));
-                    all_logs.put(rs.getLong(2), logs);
+                    calendar.setTimeInMillis(rs.getLong(2));
+                    Logs log = new Logs(t, rs.getString(1), calendar, rs.getString(3));
+                    logList.add(log);
                 }
-                String joinURL = hastebin.post(temp.toString(), false);
-                Bukkit.getServer().getConsoleSender().sendMessage("§a[" + t.name() + "] " + joinURL);
-                all.add("[" + t.name() + "]" + joinURL);
-                connection.createStatement().execute("DELETE FROM " + t.name());
+                allLogs.put(t, logList);
             }
-            // Все логи вместе
-            StringBuilder temp = new StringBuilder();
-            all_logs.forEach((time, log) -> {
-                temp.append("[").append(log.getTime()).append("] ").append(log.getNick()).append(" ").append(log.getMessage()).append("\n");
-            });
-            all.add(hastebin.post(temp.toString(), false));
-            for (String s : all) {
-                Discord.getInst().sendMessage(s);
-            }
-        } catch (SQLException | IOException throwables) {
+            return allLogs;
+        } catch (SQLException throwables) {
             throwables.printStackTrace();
+            return null;
         }
     }
 
-    public void saveLogToDatabase(String nick, LogsType logsType, long time, String message) {
+    public ArrayList<Logs> getAllLogsTogether() {
+        TreeMap<Long, Logs> all = new TreeMap<>();
+        try {
+            for (LogsType t : LogsType.values()) {
+                ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name());
+                while (rs.next()) {
+                    Calendar calendar = Calendar.getInstance();
+                    calendar.setTimeInMillis(rs.getLong(2));
+                    Logs logs = new Logs(t, rs.getString(1), calendar, rs.getString(3));
+                    all.put(rs.getLong(2), logs);
+                }
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        if (!all.isEmpty()) {
+            return new ArrayList<>(all.values());
+        } else {
+            return null;
+        }
+    }
+
+    public void removeLog(LogsType t) {
+        try {
+            connection.createStatement().execute("DELETE * FROM " + t.name());
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveLog(String nick, LogsType logsType, long time, String message) {
         try {
             this.connection.createStatement().execute("INSERT INTO " + logsType.name().toLowerCase() + " VALUES (\'" + nick + "\', \'" + time + "\', \'" + message + "\')");
         } catch (SQLException e) {
@@ -88,7 +102,7 @@ public class DatabaseRepository {
         }
     }
 
-    public TreeMap<Long, Logs> getHistoryFromDatabase(long time) {
+    public TreeMap<Long, Logs> getHistory(long time) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             for (LogsType t : LogsType.values()) {
@@ -106,7 +120,7 @@ public class DatabaseRepository {
         return all;
     }
 
-    public TreeMap<Long, Logs> getHistoryFromDatabase(String nick) {
+    public TreeMap<Long, Logs> getHistory(String nick) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             for (LogsType t : LogsType.values()) {
@@ -124,7 +138,7 @@ public class DatabaseRepository {
         return all;
     }
 
-    public TreeMap<Long, Logs> getHistoryFromDatabase(LogsType t) {
+    public TreeMap<Long, Logs> getHistory(LogsType t) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name());
@@ -140,7 +154,7 @@ public class DatabaseRepository {
         return all;
     }
 
-    public TreeMap<Long, Logs> getHistoryFromDatabase(String nick, long time) {
+    public TreeMap<Long, Logs> getHistory(String nick, long time) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             for (LogsType t : LogsType.values()) {
@@ -158,7 +172,7 @@ public class DatabaseRepository {
         return all;
     }
 
-    public TreeMap<Long, Logs> getHistoryFromDatabase(long time, LogsType t) {
+    public TreeMap<Long, Logs> getHistory(long time, LogsType t) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name() + " WHERE time>=\'" + time + "\'");
@@ -174,7 +188,7 @@ public class DatabaseRepository {
         return all;
     }
 
-    public TreeMap<Long, Logs> getHistoryFromDatabase(String nick, LogsType t) {
+    public TreeMap<Long, Logs> getHistory(String nick, LogsType t) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name() + " WHERE nick=\'" + nick + "\'");
@@ -190,7 +204,7 @@ public class DatabaseRepository {
         return all;
     }
 
-    public TreeMap<Long, Logs> getHistoryFromDatabase(String nick, long time, LogsType t) {
+    public TreeMap<Long, Logs> getHistory(String nick, long time, LogsType t) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name() + " WHERE nick=\'" + nick + "\' AND time>=\'" + time + "\'");

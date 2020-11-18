@@ -1,15 +1,29 @@
 package ru.luckystar.logsystem.otherservices;
 
+import ru.luckystar.logsystem.logs.Logs;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-
-import javax.net.ssl.HttpsURLConnection;
+import java.util.ArrayList;
 
 public class Hastebin {
+
+    public String postLogs(ArrayList<Logs> allLogs) {
+        String url = null;
+        StringBuilder paste = new StringBuilder();
+        allLogs.forEach(log -> paste.append("[").append(log.getTime()).append("] ").append(log.getNick()).append(" ").append(log.getMessage()));
+        try {
+            url = post(paste.toString(), false);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return url;
+    }
 
     public String post(String text, boolean raw) throws IOException {
         byte[] postData = text.getBytes(StandardCharsets.UTF_8);

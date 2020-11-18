@@ -23,35 +23,35 @@ public class LogsAPI {
     }
 
     public TreeMap<Long, Logs> getHistory(String nick) {
-        return this.dbRepo.getHistoryFromDatabase(nick);
+        return this.dbRepo.getHistory(nick);
     }
 
     public TreeMap<Long, Logs> getHistory(long time) {
-        return this.dbRepo.getHistoryFromDatabase(time);
+        return this.dbRepo.getHistory(time);
     }
 
     public TreeMap<Long, Logs> getHistory(LogsType t) {
-        return this.dbRepo.getHistoryFromDatabase(t);
+        return this.dbRepo.getHistory(t);
     }
 
     public TreeMap<Long, Logs> getHistory(String nick, long time) {
-        return this.dbRepo.getHistoryFromDatabase(nick, time);
+        return this.dbRepo.getHistory(nick, time);
     }
 
     public TreeMap<Long, Logs> getHistory(String nick, LogsType t) {
-        return this.dbRepo.getHistoryFromDatabase(nick, t);
+        return this.dbRepo.getHistory(nick, t);
     }
 
     public TreeMap<Long, Logs> getHistory(long time, LogsType t) {
-        return this.dbRepo.getHistoryFromDatabase(time, t);
+        return this.dbRepo.getHistory(time, t);
     }
 
     public TreeMap<Long, Logs> getHistory(String nick, long time, LogsType t) {
-        return this.dbRepo.getHistoryFromDatabase(nick, time, t);
+        return this.dbRepo.getHistory(nick, time, t);
     }
 
     public void saveLog(LogsType logsType, String nick, String message) {
-        this.dbRepo.saveLogToDatabase(nick, logsType, System.currentTimeMillis(), message);
+        this.dbRepo.saveLog(nick, logsType, System.currentTimeMillis(), message);
     }
 
 }
