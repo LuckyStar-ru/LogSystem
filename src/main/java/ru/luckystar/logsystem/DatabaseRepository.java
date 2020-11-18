@@ -106,7 +106,7 @@ public class DatabaseRepository {
         return all;
     }
 
-    public TreeMap<Long, Logs> getLogsFromDatabase(String nick) {
+    public TreeMap<Long, Logs> getHistoryFromDatabase(String nick) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             for (LogsType t : LogsType.values()) {
@@ -124,7 +124,23 @@ public class DatabaseRepository {
         return all;
     }
 
-    public TreeMap<Long, Logs> getLogsFromDatabase(String nick, long time) {
+    public TreeMap<Long, Logs> getHistoryFromDatabase(LogsType t) {
+        TreeMap<Long, Logs> all = new TreeMap<>();
+        try {
+            ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name());
+            while (rs.next()) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(rs.getLong(2));
+                Logs logs = new Logs(t, rs.getString(1), calendar, rs.getString(3));
+                all.put(rs.getLong(2), logs);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return all;
+    }
+
+    public TreeMap<Long, Logs> getHistoryFromDatabase(String nick, long time) {
         TreeMap<Long, Logs> all = new TreeMap<>();
         try {
             for (LogsType t : LogsType.values()) {
@@ -135,6 +151,54 @@ public class DatabaseRepository {
                     Logs logs = new Logs(t, rs.getString(1), calendar, rs.getString(3));
                     all.put(rs.getLong(2), logs);
                 }
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return all;
+    }
+
+    public TreeMap<Long, Logs> getHistoryFromDatabase(long time, LogsType t) {
+        TreeMap<Long, Logs> all = new TreeMap<>();
+        try {
+            ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name() + " WHERE time>=\'" + time + "\'");
+            while (rs.next()) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(rs.getLong(2));
+                Logs logs = new Logs(t, rs.getString(1), calendar, rs.getString(3));
+                all.put(rs.getLong(2), logs);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return all;
+    }
+
+    public TreeMap<Long, Logs> getHistoryFromDatabase(String nick, LogsType t) {
+        TreeMap<Long, Logs> all = new TreeMap<>();
+        try {
+            ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name() + " WHERE nick=\'" + nick + "\'");
+            while (rs.next()) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(rs.getLong(2));
+                Logs logs = new Logs(t, rs.getString(1), calendar, rs.getString(3));
+                all.put(rs.getLong(2), logs);
+            }
+        } catch (SQLException throwables) {
+            throwables.printStackTrace();
+        }
+        return all;
+    }
+
+    public TreeMap<Long, Logs> getHistoryFromDatabase(String nick, long time, LogsType t) {
+        TreeMap<Long, Logs> all = new TreeMap<>();
+        try {
+            ResultSet rs = connection.createStatement().executeQuery("SELECT * FROM " + t.name() + " WHERE nick=\'" + nick + "\' AND time>=\'" + time + "\'");
+            while (rs.next()) {
+                Calendar calendar = Calendar.getInstance();
+                calendar.setTimeInMillis(rs.getLong(2));
+                Logs logs = new Logs(t, rs.getString(1), calendar, rs.getString(3));
+                all.put(rs.getLong(2), logs);
             }
         } catch (SQLException throwables) {
             throwables.printStackTrace();

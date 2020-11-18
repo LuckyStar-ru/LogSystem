@@ -9,9 +9,9 @@ public class Discord {
 
     private static Discord discord;
     JDA api;
-    Integer channelID;
+    long channelID;
 
-    private Discord(String token, Integer channelID) {
+    private Discord(String token, long channelID) {
         try {
             this.channelID = channelID;
             this.api = JDABuilder.createDefault(token).build();
@@ -20,7 +20,7 @@ public class Discord {
         }
     }
 
-    static void init(String token, Integer channelID) {
+    static void init(String token, long channelID) {
         discord = new Discord(token, channelID);
     }
 

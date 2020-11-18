@@ -21,7 +21,7 @@ public class SpigotMain extends JavaPlugin {
         Bukkit.getPluginManager().registerEvents(new HandlerEvents(), this);
         getCommand("history").setExecutor(new HistoryCommand(this));
         LogsAPI.init(dbRepo);
-        Discord.init(getConfig().getString("discord.token"), getConfig().getInt("discord.channelID"));
+        Discord.init(getConfig().getString("discord.token"), getConfig().getLong("discord.channelID"));
     }
 
     @Override
