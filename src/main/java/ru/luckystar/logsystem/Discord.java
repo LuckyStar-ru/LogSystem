@@ -30,6 +30,6 @@ public class Discord {
     }
 
     public void sendMessage(String message) {
-        this.api.getTextChannelById(this.channelID).sendMessage(message);
+        this.api.getTextChannelById(this.channelID).sendMessage(message).queue();
     }
 }
