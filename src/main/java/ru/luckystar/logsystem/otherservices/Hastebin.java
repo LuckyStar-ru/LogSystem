@@ -18,7 +18,7 @@ public class Hastebin {
     public String postLogs(ArrayList<Logs> allLogs) {
         String url = null;
         StringBuilder paste = new StringBuilder();
-        allLogs.forEach(log -> paste.append("[").append(sdf.format(log.getTime().getTime())).append("] ").append(log.getNick()).append(" ").append(log.getMessage()));
+        allLogs.forEach(log -> paste.append("[").append(sdf.format(log.getTime().getTime())).append("] ").append(log.getNick()).append(" ").append(log.getMessage()).append("\n"));
         try {
             url = post(paste.toString(), false);
         } catch (IOException e) {
